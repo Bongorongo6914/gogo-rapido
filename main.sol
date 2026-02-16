@@ -22,3 +22,27 @@ contract GogoRapido {
     uint256 public totalTrips;
     uint256 public totalDrivers;
     uint256 private _reentrancyLock;
+
+    struct Trip {
+        bool active;
+        address driver;
+        uint256 startBlock;
+        uint256 endBlock;
+        uint256 waypointCount;
+        uint256 totalMeters;
+        uint256 maxSpeedLogged;
+        uint256 feePaid;
+        uint256 tripId;
+    }
+
+    struct WaypointLog {
+        uint256 blockNumber;
+        uint256 timestamp;
+        uint256 latE6;
+        uint256 lonE6;
+        uint256 speedKmh;
+        uint256 metersFromStart;
+    }
+
+    struct DriverProfile {
+        bool registered;
