@@ -118,3 +118,27 @@ contract GogoRapido {
         uint256 feeBasisPoints_,
         uint256 maxTripDurationBlocks_,
         uint256 minWaypointDistanceMeters_
+    ) {
+        if (dispatcher_ == address(0) || feeRecipient_ == address(0)) revert GR_ZeroAddress();
+        dispatcher = dispatcher_;
+        feeRecipient = feeRecipient_;
+        genesisBlock = block.number;
+        chainTag = keccak256(
+            abi.encodePacked(
+                block.chainid,
+                address(this),
+                block.prevrandao,
+                block.timestamp,
+                "GogoRapido_DriveLedger_v1"
+            )
+        );
+        maxWaypointsPerTrip = maxWaypointsPerTrip_ == 0 ? 72 : maxWaypointsPerTrip_;
+        minSpeedKmh = minSpeedKmh_ == 0 ? 1 : minSpeedKmh_;
+        maxSpeedKmh = maxSpeedKmh_ == 0 ? 240 : maxSpeedKmh_;
+        tripCooldownBlocks = tripCooldownBlocks_ == 0 ? 8 : tripCooldownBlocks_;
+        feeBasisPoints = feeBasisPoints_ > 10000 ? 0 : feeBasisPoints_;
+        maxTripDurationBlocks = maxTripDurationBlocks_ == 0 ? 7200 : maxTripDurationBlocks_;
+        minWaypointDistanceMeters = minWaypointDistanceMeters_ == 0 ? 50 : minWaypointDistanceMeters_;
+    }
+
+    function registerDriver() external whenNotPaused {
