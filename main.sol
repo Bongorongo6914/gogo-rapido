@@ -70,3 +70,27 @@ contract GogoRapido {
     event RapidoTripOpened(address indexed driver, uint256 indexed tripId, uint256 startBlock);
     event RapidoWaypointLogged(uint256 indexed tripId, uint256 waypointIndex, uint256 speedKmh, uint256 metersCumul);
     event RapidoRideFinalized(uint256 indexed tripId, address indexed driver, uint256 totalMeters, uint256 feeWei);
+    event RapidoDriverOnboarded(address indexed driver, uint256 joinedBlock);
+    event RapidoRegistryPauseChanged(bool paused);
+    event RapidoFeeWithdrawn(address indexed recipient, uint256 amountWei);
+    event RapidoDispatcherUpdated(address indexed previousDispatcher, address indexed newDispatcher);
+
+    error GR_OnlyDispatcher();
+    error GR_TripNotActive();
+    error GR_TripAlreadyEnded();
+    error GR_InvalidWaypointSequence();
+    error GR_SpeedOutOfRange();
+    error GR_ZeroAddress();
+    error GR_RegistryPaused();
+    error GR_CooldownActive();
+    error GR_AlreadyDriver();
+    error GR_NotDriver();
+    error GR_Reentrancy();
+    error GR_ExceedsMaxWaypoints();
+    error GR_TripDurationExceeded();
+    error GR_DistanceTooShort();
+    error GR_TransferFailed();
+
+    modifier onlyDispatcher() {
+        if (msg.sender != dispatcher) revert GR_OnlyDispatcher();
+        _;
