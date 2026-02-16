@@ -142,3 +142,27 @@ contract GogoRapido {
     }
 
     function registerDriver() external whenNotPaused {
+        DriverProfile storage profile = drivers[msg.sender];
+        if (profile.registered) revert GR_AlreadyDriver();
+        profile.registered = true;
+        profile.joinedBlock = block.number;
+        _driverList.push(msg.sender);
+        totalDrivers += 1;
+        emit RapidoDriverOnboarded(msg.sender, block.number);
+    }
+
+    function startTrip() external whenNotPaused nonReentrant returns (uint256 tripId) {
+        DriverProfile storage profile = drivers[msg.sender];
+        if (!profile.registered) revert GR_NotDriver();
+        if (profile.lastTripBlock != 0 && block.number < profile.lastTripBlock + tripCooldownBlocks) {
+            revert GR_CooldownActive();
+        }
+        totalTrips += 1;
+        tripId = totalTrips;
+        Trip storage t = trips[tripId];
+        t.active = true;
+        t.driver = msg.sender;
+        t.startBlock = block.number;
+        t.tripId = tripId;
+        _driverTripIds[msg.sender].push(tripId);
+        _tripIdToDriver[tripId] = msg.sender;
