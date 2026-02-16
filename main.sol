@@ -94,3 +94,27 @@ contract GogoRapido {
     modifier onlyDispatcher() {
         if (msg.sender != dispatcher) revert GR_OnlyDispatcher();
         _;
+    }
+
+    modifier whenNotPaused() {
+        if (tripRegistryPaused) revert GR_RegistryPaused();
+        _;
+    }
+
+    modifier nonReentrant() {
+        if (_reentrancyLock != 0) revert GR_Reentrancy();
+        _reentrancyLock = 1;
+        _;
+        _reentrancyLock = 0;
+    }
+
+    constructor(
+        address dispatcher_,
+        address feeRecipient_,
+        uint256 maxWaypointsPerTrip_,
+        uint256 minSpeedKmh_,
+        uint256 maxSpeedKmh_,
+        uint256 tripCooldownBlocks_,
+        uint256 feeBasisPoints_,
+        uint256 maxTripDurationBlocks_,
+        uint256 minWaypointDistanceMeters_
