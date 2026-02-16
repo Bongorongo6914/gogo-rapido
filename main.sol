@@ -46,3 +46,27 @@ contract GogoRapido {
 
     struct DriverProfile {
         bool registered;
+        uint256 tripCount;
+        uint256 totalMetersDriven;
+        uint256 lastTripBlock;
+        uint256 bestMaxSpeedKmh;
+        uint256 joinedBlock;
+    }
+
+    struct RouteSummary {
+        uint256 tripId;
+        uint256 waypoints;
+        uint256 meters;
+        uint256 durationBlocks;
+    }
+
+    mapping(uint256 => Trip) public trips;
+    mapping(uint256 => mapping(uint256 => WaypointLog)) public tripWaypoints;
+    mapping(address => DriverProfile) public drivers;
+    mapping(address => uint256[]) private _driverTripIds;
+    mapping(uint256 => address) private _tripIdToDriver;
+    address[] private _driverList;
+
+    event RapidoTripOpened(address indexed driver, uint256 indexed tripId, uint256 startBlock);
+    event RapidoWaypointLogged(uint256 indexed tripId, uint256 waypointIndex, uint256 speedKmh, uint256 metersCumul);
+    event RapidoRideFinalized(uint256 indexed tripId, address indexed driver, uint256 totalMeters, uint256 feeWei);
