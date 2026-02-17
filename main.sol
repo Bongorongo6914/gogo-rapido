@@ -214,3 +214,27 @@ contract GogoRapido {
         if (!t.active) revert GR_TripNotActive();
         if (t.driver != msg.sender) revert GR_NotDriver();
         t.active = false;
+        t.endBlock = block.number;
+        uint256 feeWei = 0;
+        if (feeBasisPoints > 0 && t.totalMeters >= minWaypointDistanceMeters) {
+            feeWei = (t.totalMeters * feeBasisPoints) / 10000;
+            if (feeWei > address(this).balance) feeWei = address(this).balance;
+            t.feePaid = feeWei;
+            if (feeWei > 0 && feeRecipient != address(0)) {
+                (bool ok,) = feeRecipient.call{value: feeWei}("");
+                if (!ok) revert GR_TransferFailed();
+                emit RapidoFeeWithdrawn(feeRecipient, feeWei);
+            }
+        }
+        DriverProfile storage profile = drivers[msg.sender];
+        profile.tripCount += 1;
+        profile.totalMetersDriven += t.totalMeters;
+        emit RapidoRideFinalized(tripId_, msg.sender, t.totalMeters, feeWei);
+    }
+
+    function setPaused(bool paused_) external onlyDispatcher {
+        tripRegistryPaused = paused_;
+        emit RapidoRegistryPauseChanged(paused_);
+    }
+
+    function getTrip(uint256 tripId_)
