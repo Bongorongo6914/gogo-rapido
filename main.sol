@@ -310,3 +310,27 @@ contract GogoRapido {
         );
     }
 
+    function getDriverTripCount(address driver_) external view returns (uint256) {
+        return _driverTripIds[driver_].length;
+    }
+
+    function getDriverTripIdAt(address driver_, uint256 index) external view returns (uint256) {
+        return _driverTripIds[driver_][index];
+    }
+
+    function getRouteSummary(uint256 tripId_)
+        external
+        view
+        returns (uint256 tripId, uint256 waypoints, uint256 meters, uint256 durationBlocks)
+    {
+        Trip storage t = trips[tripId_];
+        uint256 dur = t.endBlock >= t.startBlock ? t.endBlock - t.startBlock : 0;
+        return (t.tripId, t.waypointCount, t.totalMeters, dur);
+    }
+
+    function getDriverAt(uint256 index) external view returns (address) {
+        require(index < _driverList.length, "GogoRapido: index out of range");
+        return _driverList[index];
+    }
+
+    function totalDriverCount() external view returns (uint256) {
