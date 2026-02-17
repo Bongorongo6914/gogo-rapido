@@ -238,3 +238,27 @@ contract GogoRapido {
     }
 
     function getTrip(uint256 tripId_)
+        external
+        view
+        returns (
+            bool active,
+            address driver,
+            uint256 startBlock,
+            uint256 endBlock,
+            uint256 waypointCount,
+            uint256 totalMeters,
+            uint256 maxSpeedLogged,
+            uint256 feePaid
+        )
+    {
+        Trip storage t = trips[tripId_];
+        return (
+            t.active,
+            t.driver,
+            t.startBlock,
+            t.endBlock,
+            t.waypointCount,
+            t.totalMeters,
+            t.maxSpeedLogged,
+            t.feePaid
+        );
