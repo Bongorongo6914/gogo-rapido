@@ -262,3 +262,27 @@ contract GogoRapido {
             t.maxSpeedLogged,
             t.feePaid
         );
+    }
+
+    function getWaypoint(uint256 tripId_, uint256 index)
+        external
+        view
+        returns (
+            uint256 blockNumber,
+            uint256 timestamp,
+            uint256 latE6,
+            uint256 lonE6,
+            uint256 speedKmh,
+            uint256 metersFromStart
+        )
+    {
+        WaypointLog storage w = tripWaypoints[tripId_][index];
+        return (
+            w.blockNumber,
+            w.timestamp,
+            w.latE6,
+            w.lonE6,
+            w.speedKmh,
+            w.metersFromStart
+        );
+    }
