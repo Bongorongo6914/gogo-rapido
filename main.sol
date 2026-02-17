@@ -286,3 +286,27 @@ contract GogoRapido {
             w.metersFromStart
         );
     }
+
+    function getDriverProfile(address driver_)
+        external
+        view
+        returns (
+            bool registered,
+            uint256 tripCount,
+            uint256 totalMetersDriven,
+            uint256 lastTripBlock,
+            uint256 bestMaxSpeedKmh,
+            uint256 joinedBlock
+        )
+    {
+        DriverProfile storage p = drivers[driver_];
+        return (
+            p.registered,
+            p.tripCount,
+            p.totalMetersDriven,
+            p.lastTripBlock,
+            p.bestMaxSpeedKmh,
+            p.joinedBlock
+        );
+    }
+
