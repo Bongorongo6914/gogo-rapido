@@ -334,3 +334,27 @@ contract GogoRapido {
     }
 
     function totalDriverCount() external view returns (uint256) {
+        return _driverList.length;
+    }
+
+    function canStartTrip(address driver_) external view returns (bool) {
+        DriverProfile storage p = drivers[driver_];
+        if (!p.registered) return false;
+        if (p.lastTripBlock == 0) return true;
+        return block.number >= p.lastTripBlock + tripCooldownBlocks;
+    }
+
+    function getTripDurationBlocks(uint256 tripId_) external view returns (uint256) {
+        Trip storage t = trips[tripId_];
+        if (t.endBlock >= t.startBlock) return t.endBlock - t.startBlock;
+        if (t.active) return block.number - t.startBlock;
+        return 0;
+    }
+
+    function getConfig()
+        external
+        view
+        returns (
+            uint256 maxWaypoints,
+            uint256 minKmh,
+            uint256 maxKmh,
