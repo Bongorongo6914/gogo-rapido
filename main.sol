@@ -166,3 +166,27 @@ contract GogoRapido {
         t.tripId = tripId;
         _driverTripIds[msg.sender].push(tripId);
         _tripIdToDriver[tripId] = msg.sender;
+        profile.lastTripBlock = block.number;
+        emit RapidoTripOpened(msg.sender, tripId, block.number);
+        return tripId;
+    }
+
+    function logWaypoint(
+        uint256 tripId_,
+        uint256 latE6,
+        uint256 lonE6,
+        uint256 speedKmh,
+        uint256 metersFromStart
+    ) external whenNotPaused {
+        Trip storage t = trips[tripId_];
+        if (!t.active) revert GR_TripNotActive();
+        if (t.driver != msg.sender && msg.sender != dispatcher) revert GR_NotDriver();
+        if (speedKmh < minSpeedKmh || speedKmh > maxSpeedKmh) revert GR_SpeedOutOfRange();
+        if (t.waypointCount >= maxWaypointsPerTrip) revert GR_ExceedsMaxWaypoints();
+        if (block.number - t.startBlock > maxTripDurationBlocks) revert GR_TripDurationExceeded();
+        if (t.waypointCount > 0) {
+            WaypointLog storage prev = tripWaypoints[tripId_][t.waypointCount - 1];
+            if (metersFromStart <= prev.metersFromStart || metersFromStart - prev.metersFromStart < minWaypointDistanceMeters) {
+                revert GR_InvalidWaypointSequence();
+            }
+        } else if (metersFromStart != 0) {
