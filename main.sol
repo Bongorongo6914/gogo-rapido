@@ -190,3 +190,27 @@ contract GogoRapido {
                 revert GR_InvalidWaypointSequence();
             }
         } else if (metersFromStart != 0) {
+            revert GR_InvalidWaypointSequence();
+        }
+        uint256 idx = t.waypointCount;
+        tripWaypoints[tripId_][idx] = WaypointLog({
+            blockNumber: block.number,
+            timestamp: block.timestamp,
+            latE6: latE6,
+            lonE6: lonE6,
+            speedKmh: speedKmh,
+            metersFromStart: metersFromStart
+        });
+        t.waypointCount += 1;
+        t.totalMeters = metersFromStart;
+        if (speedKmh > t.maxSpeedLogged) t.maxSpeedLogged = speedKmh;
+        DriverProfile storage profile = drivers[msg.sender];
+        if (speedKmh > profile.bestMaxSpeedKmh) profile.bestMaxSpeedKmh = speedKmh;
+        emit RapidoWaypointLogged(tripId_, idx, speedKmh, metersFromStart);
+    }
+
+    function endTrip(uint256 tripId_) external whenNotPaused nonReentrant {
+        Trip storage t = trips[tripId_];
+        if (!t.active) revert GR_TripNotActive();
+        if (t.driver != msg.sender) revert GR_NotDriver();
+        t.active = false;
